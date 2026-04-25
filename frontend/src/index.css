@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #04050a;
+  --s1: #080c14;
+  --s2: #0d1117;
+  --s3: #111827;
+  --b1: rgba(255,255,255,0.06);
+  --b2: rgba(255,255,255,0.10);
+  --b3: rgba(255,255,255,0.15);
+  --text: #f0f4ff;
+  --muted: #6b7a99;
+  --muted2: #3d4a63;
+  --accent: #4f8eff;
+  --accent2: #7c3aed;
+  --green: #10b981;
+  --red: #f43f5e;
+  --yellow: #f59e0b;
+  --cyan: #06b6d4;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--s1); }
+::-webkit-scrollbar-thumb { background: var(--b2); border-radius: 999px; }
+
+/* MESH BLOBS */
+.mesh-blob { position: fixed; border-radius: 50%; filter: blur(120px); opacity: 0.07; pointer-events: none; z-index: 0; }
+.blob1 { width: 600px; height: 600px; background: radial-gradient(circle, #4f8eff, transparent); top: -200px; left: -100px; animation: float1 12s ease-in-out infinite; }
+.blob2 { width: 500px; height: 500px; background: radial-gradient(circle, #7c3aed, transparent); top: 100px; right: -150px; animation: float2 15s ease-in-out infinite; }
+.blob3 { width: 400px; height: 400px; background: radial-gradient(circle, #06b6d4, transparent); bottom: -100px; left: 40%; animation: float3 10s ease-in-out infinite; }
+
+@keyframes float1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(40px,30px)} }
+@keyframes float2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,40px)} }
+@keyframes float3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(20px,-30px)} }
+
+@keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+@keyframes dash-fill {
+  from { stroke-dashoffset: 254; }
+  to { stroke-dashoffset: var(--target-offset, 56); }
+}
+
+.pulse-dot { animation: pulse-dot 2s infinite; }
+.fade-up { animation: fadeUp 0.5s ease both; }
+.spin { animation: spin 1s linear infinite; }
