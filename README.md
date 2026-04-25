@@ -115,4 +115,4 @@ Apache 2.0 — feel free to use and modify!
 
 ---
 
-Made with ❤️ by [SiddharthRiot](https://github.com/SiddharthRiot)
+Made with ❤️ using AI to bring trust back to information.
