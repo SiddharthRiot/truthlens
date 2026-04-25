@@ -9,3 +9,8 @@ pydantic==2.13.3
 starlette==1.0.0
 anyio==4.13.0
 pytest==8.3.2
+sqlalchemy==2.0.41
+psycopg2-binary==2.9.10
+python-jose==3.5.0
+passlib==1.7.4
+bcrypt==4.3.0
