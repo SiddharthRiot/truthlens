@@ -1,6 +1,11 @@
 backend/.env
 .env
 
+node_modules/
+package.json
+package-lock.json
+docker-compose.yml
+
 backend/venv/
 __pycache__/
 *.pyc
