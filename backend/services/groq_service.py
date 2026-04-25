@@ -5,9 +5,28 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+api_key = os.getenv("GROQ_API_KEY")
+
+client = None
+if api_key:
+    client = Groq(api_key=api_key)
+
 
 def analyze_news(text: str) -> dict:
+    if client is None:
+        return {
+            "trust_score": 50,
+            "verdict": "Suspicious",
+            "verdict_color": "yellow",
+            "bias_level": "Unknown",
+            "emotional_language": "Unknown",
+            "clickbait": "Maybe",
+            "suspicious_phrases": [],
+            "summary": "Mock response (API key not set)",
+            "positive_signals": [],
+            "negative_signals": []
+        }
+
     prompt = f"""
     You are a fake news detection expert. Analyze the following news article and return ONLY a JSON response with no extra text, no markdown, no backticks.
 
@@ -37,7 +56,6 @@ def analyze_news(text: str) -> dict:
 
     raw = response.choices[0].message.content.strip()
 
-    # Clean all markdown variations
     if "```json" in raw:
         raw = raw.split("```json")[1].split("```")[0]
     elif "```" in raw:
@@ -48,7 +66,6 @@ def analyze_news(text: str) -> dict:
     try:
         return json.loads(raw)
     except json.JSONDecodeError:
-        # Find JSON object in response
         start = raw.find("{")
         end = raw.rfind("}") + 1
         if start != -1 and end > start:

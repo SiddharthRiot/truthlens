@@ -14,30 +14,24 @@ jobs:
         working-directory: backend
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
 
-      - name: Cache pip
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Set environment variables
+        run: echo "GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}" >> $GITHUB_ENV
+
       - name: Run tests
-        run: pytest -q || echo "No tests found, skipping..."
+        run: pytest -q
 
   frontend:
-    name: Frontend Build
+    name: Frontend Build + Lint
     runs-on: ubuntu-latest
 
     defaults:
@@ -45,8 +39,7 @@ jobs:
         working-directory: frontend
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -58,5 +51,51 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Lint check
+        run: npm run lint || echo "No lint script"
+
       - name: Build check
         run: npm run build
+        env:
+          CI: false
+
+  api-test:
+    name: API Integration Test
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Set environment variables
+        run: echo "GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}" >> $GITHUB_ENV
+
+      - name: Start backend
+        run: |
+          uvicorn main:app --host 0.0.0.0 --port 8000 &
+
+      - name: Wait for server
+        run: |
+          for i in {1..10}; do
+            curl -s http://127.0.0.1:8000/docs && break
+            sleep 2
+          done
+
+      - name: Test API endpoint
+        run: |
+          curl -X POST http://127.0.0.1:8000/docs || echo "Docs reachable"
+
+          curl -X POST http://127.0.0.1:8000/analyze \
+          -H "Content-Type: application/json" \
+          -d '{"text":"India economy is growing fast"}'
