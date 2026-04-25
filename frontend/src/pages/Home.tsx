@@ -94,7 +94,7 @@ const Home: React.FC = () => {
               }}
             >Reset</button>
             <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 6, marginTop: 2 }}>
-              {["Hindi", "English", "WhatsApp", "URLs", "Free"].map(chip => (
+              {["Hindi", "English", "Bengali", "Tamil", "Marathi", "Urdu", "WhatsApp", "URLs", "Free"].map(chip => (
                 <span key={chip} style={{
                   fontSize: 10, padding: "3px 9px", borderRadius: 999,
                   background: "var(--b1)", color: "var(--muted)", border: "1px solid var(--b1)"
