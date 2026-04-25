@@ -1,10 +1,16 @@
 import axios from "axios";
 import { ApiResponse } from "../types/analysis";
+import { getToken } from "./authService";
 
 const BASE_URL = "http://localhost:8000/api";
 
 export const analyzeNews = async (text: string): Promise<ApiResponse> => {
-  const response = await axios.post(`${BASE_URL}/analyze`, { text });
+  const token = getToken();
+  const response = await axios.post(
+    `${BASE_URL}/analyze`,
+    { text },
+    token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+  );
   return response.data;
 };
 

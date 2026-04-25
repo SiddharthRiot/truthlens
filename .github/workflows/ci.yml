@@ -9,9 +9,29 @@ jobs:
     name: Backend Tests
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: truthlens_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     defaults:
       run:
         working-directory: backend
+
+    env:
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/truthlens_test
+      SECRET_KEY: test-secret-key
 
     steps:
       - uses: actions/checkout@v3
@@ -23,9 +43,6 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
-
-      - name: Set environment variables
-        run: echo "GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}" >> $GITHUB_ENV
 
       - name: Run tests
         run: pytest -q
@@ -62,10 +79,31 @@ jobs:
   api-test:
     name: API Integration Test
     runs-on: ubuntu-latest
+    needs: backend  # 👈 backend pass hone ke baad chale
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: truthlens_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     defaults:
       run:
         working-directory: backend
+
+    env:
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/truthlens_test
+      SECRET_KEY: test-secret-key
 
     steps:
       - uses: actions/checkout@v3
@@ -78,24 +116,27 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Set environment variables
-        run: echo "GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}" >> $GITHUB_ENV
-
       - name: Start backend
-        run: |
-          uvicorn main:app --host 0.0.0.0 --port 8000 &
+        run: uvicorn main:app --host 0.0.0.0 --port 8000 &
 
       - name: Wait for server
         run: |
-          for i in {1..10}; do
-            curl -s http://127.0.0.1:8000/docs && break
+          for i in {1..15}; do
+            curl -sf http://127.0.0.1:8000/ && break
             sleep 2
           done
 
-      - name: Test API endpoint
-        run: |
-          curl -X POST http://127.0.0.1:8000/docs || echo "Docs reachable"
+      - name: Test root endpoint
+        run: curl -sf http://127.0.0.1:8000/
 
-          curl -X POST http://127.0.0.1:8000/analyze \
+      - name: Test analyze endpoint
+        run: |
+          curl -sf -X POST http://127.0.0.1:8000/api/analyze \
           -H "Content-Type: application/json" \
-          -d '{"text":"India economy is growing fast"}'
+          -d '{"text":"India economy is growing fast"}' | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          assert data['success'] == True, 'Analysis failed'
+          assert 'analysis' in data, 'No analysis in response'
+          print('API test passed!')
+          "

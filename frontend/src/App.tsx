@@ -4,6 +4,10 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import HowItWorks from "./pages/HowItWorks";
 import About from "./pages/About";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import AdminDashboard from "./pages/AdminDashboard";
+import UserDashboard from "./pages/UserDashboard"; // 👈 add kiya
 
 const App: React.FC = () => {
   return (
@@ -19,6 +23,10 @@ const App: React.FC = () => {
           <Route path="/" element={<Home />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/about" element={<About />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/dashboard" element={<UserDashboard />} /> // 👈 add kiya
         </Routes>
       </div>
     </Router>
