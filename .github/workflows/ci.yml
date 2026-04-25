@@ -24,6 +24,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Set environment variables
+        run: echo "GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}" >> $GITHUB_ENV
+
       - name: Run tests
         run: pytest -q
 
@@ -75,10 +78,13 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Set environment variables
+        run: echo "GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}" >> $GITHUB_ENV
+
       - name: Start backend
         run: |
           uvicorn main:app --host 0.0.0.0 --port 8000 &
-      
+
       - name: Wait for server
         run: |
           for i in {1..10}; do
@@ -90,7 +96,6 @@ jobs:
         run: |
           curl -X POST http://127.0.0.1:8000/docs || echo "Docs reachable"
 
-          # ⚠️ CHANGE THIS ENDPOINT IF NEEDED
           curl -X POST http://127.0.0.1:8000/analyze \
           -H "Content-Type: application/json" \
           -d '{"text":"India economy is growing fast"}'
