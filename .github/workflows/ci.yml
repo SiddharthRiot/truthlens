@@ -79,7 +79,7 @@ jobs:
   api-test:
     name: API Integration Test
     runs-on: ubuntu-latest
-    needs: backend  # 👈 backend pass hone ke baad chale
+    needs: backend
 
     services:
       postgres:
